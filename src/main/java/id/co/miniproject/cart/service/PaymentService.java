@@ -6,6 +6,7 @@ import id.co.miniproject.cart.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 
@@ -22,16 +23,24 @@ public class PaymentService {
         PaymentResponse response = new PaymentResponse();
         //get customer info -> butuh nomor_ktp, nama, username
         CustomerResponse custInfo = restTemplateService.getCustInfo(input.getCustomerUsername());
-
+        if(ObjectUtils.isEmpty(custInfo)){
+            return response;
+        }
         //get item info -> butuh nama barang, stok, harga
         ItemResponse itemInfo = restTemplateService.getItemInfo(Integer.parseInt(input.getItemId()));
-
+        if(ObjectUtils.isEmpty(itemInfo)){
+            return response;
+        }
         //get bank info by nomor ktp dari custInfo-> butuh cek saldo
-        BankResponse bankInfo = new BankResponse(); //ganti panggil restTemplate
-
+        BankResponse bankInfo = restTemplateService.getInfoSaldo(custInfo.getNomor_ktp());
+        if(ObjectUtils.isEmpty(bankInfo)){
+            return response;
+        }
         // cek saldo > harga dan stok barang
         if(itemInfo.getStok()>1 && itemInfo.getHarga()>bankInfo.getSaldo()){
-            //update saldo bank -> panggil restTemplate
+            //update saldo bank
+            int newSaldo = bankInfo.getSaldo() - itemInfo.getHarga();
+            BankData bankData = restTemplateService.updateSaldoByKtp(custInfo.getNomor_ktp(), newSaldo);
         }else{
             //payment gagal saldo tidak mencukup
             return response;

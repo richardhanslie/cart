@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/cart")
 public class CartController {
 
-    private CartService cartService;
-    private ResponseUtils responseUtils;
+    private final  CartService cartService;
+    private final ResponseUtils responseUtils;
 
     @PostMapping()
     private ResponseEntity<Object> addItem(@RequestBody addItemRequest input){

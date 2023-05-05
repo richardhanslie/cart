@@ -2,7 +2,6 @@ package id.co.miniproject.cart.controller;
 
 import id.co.miniproject.cart.model.PaymentResponse;
 import id.co.miniproject.cart.model.addItemRequest;
-import id.co.miniproject.cart.repository.PaymentRepository;
 import id.co.miniproject.cart.service.PaymentService;
 import id.co.miniproject.cart.util.ErrorCode;
 import id.co.miniproject.cart.util.ResponseUtils;
@@ -17,13 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class PaymentController {
-    private ResponseUtils responseUtils;
-    private PaymentService paymentService;
+
+    private final ResponseUtils responseUtils;
+    private final PaymentService paymentService;
 
     @PostMapping("/payment")
-    private ResponseEntity<Object> paymentExecute(@RequestBody addItemRequest input){
+    private ResponseEntity<Object> paymentExecute(@RequestBody addItemRequest input) {
         PaymentResponse response = paymentService.payForOneItem(input);
-        if(ObjectUtils.isEmpty(response)){
+        if (ObjectUtils.isEmpty(response)) {
+            return responseUtils.generate(ErrorCode.General_Error, HttpStatus.BAD_REQUEST, null);
+        }
+        return responseUtils.generate(ErrorCode.Success, HttpStatus.OK, response);
+    }
+
+    @PostMapping("/paymentcart")
+    private ResponseEntity<Object> paymentCartExecute(@RequestBody addItemRequest input) {
+        PaymentResponse response = paymentService.payForManyItem(input);
+        if (ObjectUtils.isEmpty(response)) {
             return responseUtils.generate(ErrorCode.General_Error, HttpStatus.BAD_REQUEST, null);
         }
         return responseUtils.generate(ErrorCode.Success, HttpStatus.OK, response);

@@ -6,8 +6,11 @@ import id.co.miniproject.cart.model.ItemResponse;
 import id.co.miniproject.cart.model.addItemRequest;
 import id.co.miniproject.cart.model.addItemResponse;
 import id.co.miniproject.cart.repository.CartRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +41,21 @@ public class CartService {
         return result;
     }
 
-    public Cart updateCartOnSuccessPay(int payment, int cart){
+    public Cart updateCartOnSuccessPay(int payment, int itemId, int custId){
+        int cartId = cartRepository.getCartId(custId, itemId);
         Cart newCart = new Cart();
-        newCart.setId(cart);
+        newCart.setId(cartId);
         newCart.setStatus("Payment");
         newCart.setId_payment(payment);
         return cartRepository.save(newCart);
+    }
+
+    @Transactional
+    public void updateAllCart(int payment,List<Integer> cartId){
+        cartRepository.updateAllCart("PAYMENT",payment, cartId);
+    }
+
+    public List<Cart> getCartByCust(int cust){
+        return cartRepository.findCartById_customerAndStatus(cust, "On-Cart");
     }
 }

@@ -4,6 +4,7 @@ import id.co.miniproject.cart.model.BankData;
 import id.co.miniproject.cart.model.BankResponse;
 import id.co.miniproject.cart.model.CustomerResponse;
 import id.co.miniproject.cart.model.ItemResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -82,19 +83,21 @@ public class RestTemplateService {
         return bankInfo;
     }
 
-    public BankData updateSaldoByKtp(String nomorKtp, int saldo){
+    @Transactional
+    public Boolean transfer(String nomorRekeningPengirim, String nomorRekeningPenerima, int harga){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
         BankData bankData = new BankData();
-        bankData.setNomorktp(nomorKtp);
-        bankData.setSaldo(saldo);
-        String urlBank = "http://localhost:8999/bank/saldo";
-        BankData bankInfo = restTemplate.postForObject(
+        bankData.setNomorRekeningPengirim(nomorRekeningPengirim);
+        bankData.setNomorRekeningPenerima(nomorRekeningPenerima);
+        bankData.setHarga(harga);
+        String urlBank = "http://localhost:8999/bank/t";
+        Boolean bankInfo = restTemplate.postForObject(
                 urlBank,
                 bankData,
-                BankData.class
+                Boolean.class
         );
 
         return bankInfo;

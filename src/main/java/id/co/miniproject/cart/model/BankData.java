@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class BankData {
-    String nomorktp;
-    int saldo;
+    String nomorRekeningPengirim;
+    String nomorRekeningPenerima;
+    int harga;
 }

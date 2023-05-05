@@ -22,7 +22,7 @@ public class PaymentController {
 
     @PostMapping("/payment")
     private ResponseEntity<Object> paymentExecute(@RequestBody addItemRequest input){
-        PaymentResponse response = paymentService.paymentItem(input);
+        PaymentResponse response = paymentService.payForOneItem(input);
         if(ObjectUtils.isEmpty(response)){
             return responseUtils.generate(ErrorCode.General_Error, HttpStatus.BAD_REQUEST, null);
         }

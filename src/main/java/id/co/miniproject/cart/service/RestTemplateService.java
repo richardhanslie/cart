@@ -21,7 +21,7 @@ import java.util.Map;
 public class RestTemplateService {
     private final RestTemplate restTemplate;
 
-    public CustomerResponse getCustInfo(String username){
+    public CustomerResponse getCustInfo(String username) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -49,13 +49,13 @@ public class RestTemplateService {
         return custRes.getBody();
     }
 
-    public ItemResponse getItemInfo(int id){
+    public ItemResponse getItemInfo(int id) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
         Map<String, Integer> params = new HashMap<String, Integer>();
-            params.put("id", id);
+        params.put("id", id);
         String urlItem = "http://localhost:8777/item/{id}";
         ItemResponse item = restTemplate.getForObject(
                 urlItem,
@@ -66,7 +66,7 @@ public class RestTemplateService {
         return item;
     }
 
-    public BankResponse getInfoSaldo(String nomorKtp){
+    public BankResponse getInfoSaldo(String nomorKtp) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -85,7 +85,7 @@ public class RestTemplateService {
     }
 
     @Transactional
-    public Boolean transfer(String nomorRekeningPengirim, String nomorRekeningPenerima, int harga){
+    public Boolean transfer(String nomorRekeningPengirim, String nomorRekeningPenerima, int harga) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));

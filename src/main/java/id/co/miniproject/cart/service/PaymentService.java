@@ -4,7 +4,6 @@ import id.co.miniproject.cart.entitiy.Cart;
 import id.co.miniproject.cart.entitiy.Payment;
 import id.co.miniproject.cart.model.*;
 import id.co.miniproject.cart.repository.PaymentRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -23,36 +22,35 @@ public class PaymentService {
 
     private static final String nomorRekeningPemilik = "1234567890";
 
-    public PaymentResponse payForOneItem(addItemRequest input){
+    public PaymentResponse payForOneItem(addItemRequest input) {
         PaymentResponse response = new PaymentResponse();
         //get customer info -> butuh nomor_ktp, nama, username
         CustomerResponse custInfo = restTemplateService.getCustInfo(input.getCustomerUsername());
-        if(ObjectUtils.isEmpty(custInfo)){
+        if (ObjectUtils.isEmpty(custInfo)) {
             return response;
         }
         //get item info -> butuh nama barang, stok, harga
         ItemResponse itemInfo = restTemplateService.getItemInfo(Integer.parseInt(input.getItemId()));
-        if(ObjectUtils.isEmpty(itemInfo)){
+        if (ObjectUtils.isEmpty(itemInfo)) {
             return response;
         }
         //get bank info by nomor ktp dari custInfo-> butuh cek saldo
         BankResponse bankInfo = restTemplateService.getInfoSaldo(custInfo.getNomor_ktp());
-        if(ObjectUtils.isEmpty(bankInfo)){
+        if (ObjectUtils.isEmpty(bankInfo)) {
             return response;
         }
         // cek saldo > harga dan stok barang
-        if(itemInfo.getStok()>1 && itemInfo.getHarga()<bankInfo.getSaldo()){
+        if (itemInfo.getStok() > 1 && itemInfo.getHarga() < bankInfo.getSaldo()) {
             System.out.println(bankInfo.getNomor_rekening());
             //update saldo bank
             Boolean isTransfeSuccess = restTemplateService.transfer(bankInfo.getNomor_rekening(), nomorRekeningPemilik, itemInfo.getHarga());
-            if(isTransfeSuccess){
+            if (isTransfeSuccess) {
                 System.out.println("Transfer Berhasil");
-            }
-            else{
+            } else {
                 System.out.println("Transfer Gagal");
                 return response;
             }
-        }else{
+        } else {
             //payment gagal saldo tidak mencukup
             return response;
         }
@@ -77,44 +75,43 @@ public class PaymentService {
         return response;
     }
 
-    public PaymentResponse payForManyItem(addItemRequest input){
+    public PaymentResponse payForManyItem(addItemRequest input) {
         PaymentResponse response = new PaymentResponse();
         //get customer info -> butuh nomor_ktp, nama, username
         CustomerResponse custInfo = restTemplateService.getCustInfo(input.getCustomerUsername());
-        if(ObjectUtils.isEmpty(custInfo)){
+        if (ObjectUtils.isEmpty(custInfo)) {
             return response;
         }
         List<Integer> cartId = new ArrayList<>();
         List<Cart> getCart = cartService.getCartByCust(custInfo.getId());
 
-        if(!ObjectUtils.isEmpty(getCart)){
+        if (!ObjectUtils.isEmpty(getCart)) {
             int harga = 0;
             for (Cart i : getCart) {
                 cartId.add(i.getId());
                 //get item info -> butuh nama barang, stok, harga
                 ItemResponse itemInfo = restTemplateService.getItemInfo(i.getId_item());
-                if(ObjectUtils.isEmpty(itemInfo)){
+                if (ObjectUtils.isEmpty(itemInfo)) {
                     return response;
                 }
-                harga+= itemInfo.getHarga();
+                harga += itemInfo.getHarga();
             }
 
             BankResponse bankInfo = restTemplateService.getInfoSaldo(custInfo.getNomor_ktp());
-            if(ObjectUtils.isEmpty(bankInfo)){
+            if (ObjectUtils.isEmpty(bankInfo)) {
                 return response;
             }
             // cek saldo > harga dan stok barang
-            if(bankInfo.getSaldo()>harga){
+            if (bankInfo.getSaldo() > harga) {
                 //update saldo bank
                 Boolean isTransfeSuccess = restTemplateService.transfer(bankInfo.getNomor_rekening(), nomorRekeningPemilik, harga);
-                if(isTransfeSuccess){
+                if (isTransfeSuccess) {
                     System.out.println("Transfer Berhasil");
-                }
-                else{
+                } else {
                     System.out.println("Transfer Gagal");
                     return response;
                 }
-            }else{
+            } else {
                 //payment gagal saldo tidak mencukup
                 return response;
             }
@@ -128,7 +125,7 @@ public class PaymentService {
         Payment newPayment = paymentRepository.save(payment);
 
         //panggil update status cart
-        cartService.updateAllCart(newPayment.getId(),cartId );
+        cartService.updateAllCart(newPayment.getId(), cartId);
 
         response.setNamaItem("CART");
         response.setUsername(input.getCustomerUsername());

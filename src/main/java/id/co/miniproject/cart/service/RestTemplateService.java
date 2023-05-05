@@ -80,6 +80,7 @@ public class RestTemplateService {
                 params
         );
 
+        System.out.println("SALDO " + bankInfo.getSaldo());
         return bankInfo;
     }
 
@@ -93,7 +94,7 @@ public class RestTemplateService {
         bankData.setNomorRekeningPengirim(nomorRekeningPengirim);
         bankData.setNomorRekeningPenerima(nomorRekeningPenerima);
         bankData.setHarga(harga);
-        String urlBank = "http://localhost:8999/bank/t";
+        String urlBank = "http://localhost:8999/bank/transfer";
         Boolean bankInfo = restTemplate.postForObject(
                 urlBank,
                 bankData,

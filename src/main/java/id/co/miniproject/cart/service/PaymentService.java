@@ -41,7 +41,8 @@ public class PaymentService {
             return response;
         }
         // cek saldo > harga dan stok barang
-        if(itemInfo.getStok()>1 && itemInfo.getHarga()>bankInfo.getSaldo()){
+        if(itemInfo.getStok()>1 && itemInfo.getHarga()<bankInfo.getSaldo()){
+            System.out.println(bankInfo.getNomor_rekening());
             //update saldo bank
             Boolean isTransfeSuccess = restTemplateService.transfer(bankInfo.getNomor_rekening(), nomorRekeningPemilik, itemInfo.getHarga());
             if(isTransfeSuccess){
@@ -57,15 +58,14 @@ public class PaymentService {
         }
 
         //save payment ke db
-            Payment payment = new Payment();
+        Payment payment = new Payment();
         payment.setDatetime(LocalDateTime.now());
         payment.setId_item(Integer.parseInt(input.getItemId()));
         payment.setId_customer(custInfo.getId());
 
         Payment newPayment = paymentRepository.save(payment);
 
-        //panggil update status cart
-        cartService.updateCartOnSuccessPay(newPayment.getId(), Integer.parseInt(input.getItemId()), custInfo.getId());
+        //cartService.updateCartOnSuccessPay(newPayment.getId(), Integer.parseInt(input.getItemId()), custInfo.getId());
 
         response.setNamaItem(itemInfo.getNama());
         response.setUsername(input.getCustomerUsername());
